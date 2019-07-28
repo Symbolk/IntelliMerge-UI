@@ -22,6 +22,7 @@
     "monaco-editor-webpack-plugin": "^1.7.0",
     "nano-assign": "^1.0.1",
     "vue": "^2.6.10",
+    "vue-awesome": "^3.5.4",
     "vue-monaco-editor": "^0.0.19"
   },
   "devDependencies": {
