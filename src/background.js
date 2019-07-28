@@ -1,5 +1,6 @@
 'use strict'
 
+const electron = require('electron')
 import { app, protocol, BrowserWindow } from 'electron'
 import {
   createProtocol,
@@ -12,14 +13,23 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let win
 
 // Scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: { secure: true, standard: true } }])
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app', privileges: { secure: true, standard: true } }
+])
 
-function createWindow () {
+function createWindow() {
+  const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize
+
   // Create the browser window.
-  win = new BrowserWindow({ width: 800, height: 600, webPreferences: {
-    nodeIntegration: true
-  } })
+  win = new BrowserWindow({
+    width: width,
+    height: height,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  })
 
+  win.maximize()
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
