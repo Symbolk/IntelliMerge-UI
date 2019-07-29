@@ -2,11 +2,11 @@
   <div>
     <!-- <b-container class="container" fluid> -->
     <b-row>
-      <b-col cols="2">1</b-col>
+      <b-col cols="2"></b-col>
       <!-- left-base-right -->
       <b-col cols="10">
         <b-row class="button-area">
-          <b-col>
+          <b-col cols="3">
             <b-button-group size="sm">
               <b-button variant="success">
                 <v-icon name="arrow-up" />Previous
@@ -17,9 +17,10 @@
               </b-button>
             </b-button-group>
           </b-col>
-          <b-col></b-col>
+          <b-col cols="7"></b-col>
           <b-col>
-            <b-button size="sm" variant="danger">Save</b-button>
+            <b-button size="sm" variant="danger">Save</b-button>&nbsp;
+            <b-button size="sm" variant="primary">Commit</b-button>
           </b-col>
         </b-row>
         <b-row class="diff-view">
@@ -83,7 +84,7 @@ export default {
 }
 
 .editor {
-  height: 50vh;
+  height: 45vh;
   width: 10/36vw;
   margin: 0px;
   padding: 0px;
