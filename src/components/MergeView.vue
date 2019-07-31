@@ -7,7 +7,11 @@
         :menu="menu"
         :theme="sidebarTheme"
         @collapse="onCollapse"
-      />
+      >
+        <span slot="collapse-icon">
+          <v-icon name="arrows-alt-h" />
+        </span>
+      </sidebar-menu>
       <!-- left-base-right -->
       <b-col :key="collapsed">
         <b-row class="button-area">
@@ -22,11 +26,10 @@
               </b-button>
             </b-button-group>
           </b-col>
-          <b-col>
-          </b-col>
+          <b-col></b-col>
           <b-col cols="3"></b-col>
-          <b-col>
-            <b-button pill size="sm" variant="danger">
+          <b-col style="text-align: right;margin-right:10px">
+            <b-button pill size="sm" v-if="dirty" variant="danger">
               <v-icon name="save" />Save
             </b-button>&nbsp;
             <b-button pill size="sm" variant="primary">
@@ -39,23 +42,41 @@
         </b-row>
         <b-row class="diff-view" no-gutters>
           <b-col>
-            <MonacoEditor :theme="editorTheme" class="editor" language="javascript" value="value"></MonacoEditor>
+            <MonacoEditor
+              :options="diffOptions"
+              :theme="editorTheme"
+              :value="left"
+              class="editor"
+              language="javascript"
+            ></MonacoEditor>
           </b-col>
           <b-col>
-            <MonacoEditor :theme="editorTheme" class="editor" language="javascript" value="gege"></MonacoEditor>
+            <MonacoEditor
+              :options="diffOptions"
+              :theme="editorTheme"
+              :value="base"
+              class="editor"
+              language="javascript"
+            ></MonacoEditor>
           </b-col>
           <b-col>
-            <MonacoEditor :theme="editorTheme" class="editor" language="javascript" value="gege"></MonacoEditor>
+            <MonacoEditor
+              :options="diffOptions"
+              :theme="editorTheme"
+              :value="right"
+              class="editor"
+              language="javascript"
+            ></MonacoEditor>
           </b-col>
         </b-row>
         <!-- merged -->
-        <b-row>
+        <b-row no-gutters>
           <b-col class="merge-view">
             <MonacoEditor
+              :language="language"
               :theme="editorTheme"
+              :value="merged"
               class="merge-editor"
-              language="javascript"
-              value="gege"
             ></MonacoEditor>
           </b-col>
         </b-row>
@@ -77,68 +98,47 @@ export default {
 
   data() {
     return {
-      index: 0,
-      options: {
-        //Monaco Editor Options
-      },
+      // theme
       sidebarTheme: 'black-theme',
       editorTheme: 'vs-dark',
+
+      // monaco options
+      language: 'javascript',
+      diffOptions: {
+        //Monaco Editor Options
+        readOnly: true
+      },
+
+      // data
+      index: 0,
+      left: '',
+      base: '',
+      right: '',
+      merged: '',
+      dirty: false, // TODO if the merged is edited, show save button
+
       collapsed: false,
       menu: [
         {
           header: true,
-          title: 'Main Navigation'
+          title: 'Conflicting Files'
           // component: componentName
           // visibleOnCollapse: true
           // class:''
           // attributes: {}
-        },
-        {
-          // item
-          href: '/',
-          title: 'Dashboard',
-          icon: 'fa fa-user'
-          /*
-                        // custom icon
-                        icon: {
-                            element: 'span',
-                            class: 'fa fa-user',
-                            attributes: {}
-                        }
-                        */
-          // disabled: true
-          // class: ''
-          // attributes: {}
-          // alias: '/path'
-          /*
-                        badge: {
-                            text: 'new',
-                            class: 'default-badge'
-                            // attributes: {}
-                            // element: 'span'
-                        }
-                        */
-        },
-        {
-          // item with child
-          href: '/charts',
-          title: 'Charts',
-          icon: 'fa fa-chart-area',
-          child: [
-            {
-              href: '/charts/sublink',
-              title: 'Sub Link'
-            }
-          ]
         }
       ]
     }
   },
   methods: {
+    init() {
+      // TODO get conflicting file relative paths, add item to the menu
+    },
     onCollapse(collapsed) {
       this.collapsed = collapsed
     },
     onItemClick(event, item) {
+      // TODO get code content, index conflict blocks
       console.log(item)
       // console.log(event)
       // console.log(item)
@@ -170,7 +170,7 @@ export default {
 
 .merge-editor {
   height: 50vh;
-  width: 10/12vw;
+  /* width: 10/12vw; */
   /* margin: 0px; */
   padding: 0px;
   border: 1px solid grey;
@@ -181,5 +181,8 @@ export default {
 }
 #demo.collapsed {
   padding-left: 50px;
+}
+
+.v-sidebar-menu .collapse-btn {
 }
 </style>

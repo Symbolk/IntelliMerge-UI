@@ -12,6 +12,7 @@ import 'vue-awesome/icons/arrow-down'
 import 'vue-awesome/icons/cogs'
 import 'vue-awesome/icons/check'
 import 'vue-awesome/icons/save'
+import 'vue-awesome/icons/arrows-alt-h'
 
 Vue.component('v-icon', Icon)
 Vue.config.productionTip = false
