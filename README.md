@@ -1,4 +1,4 @@
-# intellimerge-ui
+# IntelliMerge-UI
 
 ## Project setup
 ```
