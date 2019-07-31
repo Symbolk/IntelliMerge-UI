@@ -9,6 +9,9 @@ import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
 
 import 'vue-awesome/icons/arrow-up'
 import 'vue-awesome/icons/arrow-down'
+import 'vue-awesome/icons/cogs'
+import 'vue-awesome/icons/check'
+import 'vue-awesome/icons/save'
 
 Vue.component('v-icon', Icon)
 Vue.config.productionTip = false
@@ -16,5 +19,5 @@ Vue.use(BootstrapVue)
 Vue.use(VueSidebarMenu)
 
 new Vue({
-  render: h => h(App),
+  render: h => h(App)
 }).$mount('#app')

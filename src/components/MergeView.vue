@@ -22,10 +22,19 @@
               </b-button>
             </b-button-group>
           </b-col>
-          <b-col cols="7"></b-col>
           <b-col>
-            <b-button size="sm" variant="danger">Save</b-button>&nbsp;
-            <b-button size="sm" variant="primary">Commit</b-button>
+          </b-col>
+          <b-col cols="3"></b-col>
+          <b-col>
+            <b-button pill size="sm" variant="danger">
+              <v-icon name="save" />Save
+            </b-button>&nbsp;
+            <b-button pill size="sm" variant="primary">
+              <v-icon name="check" />Commit
+            </b-button>&nbsp;
+            <b-button pill size="sm" variant="info">
+              <v-icon name="cogs" />Settings
+            </b-button>
           </b-col>
         </b-row>
         <b-row class="diff-view" no-gutters>
@@ -139,9 +148,9 @@ export default {
 </script>
 
 <style scoped>
-/* .button-area {
-  height: 4vh;
-} */
+.button-area {
+  padding: 1px;
+}
 
 .diff-view {
   height: 45vh;
