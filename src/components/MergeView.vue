@@ -1,10 +1,15 @@
 <template>
-  <div>
+  <div :class="[{'collapsed' : collapsed}]" id="demo">
     <!-- <b-container class="container" fluid> -->
     <b-row>
-      <b-col cols="2"></b-col>
+      <sidebar-menu
+        :collapsed="collapsed"
+        :menu="menu"
+        :theme="sidebarTheme"
+        @collapse="onCollapse"
+      />
       <!-- left-base-right -->
-      <b-col cols="10">
+      <b-col :key="collapsed">
         <b-row class="button-area">
           <b-col cols="3">
             <b-button-group size="sm">
@@ -23,21 +28,26 @@
             <b-button size="sm" variant="primary">Commit</b-button>
           </b-col>
         </b-row>
-        <b-row class="diff-view">
-          <b-col cols="4">
-            <MonacoEditor class="editor" language="javascript" theme="vs-light" value="value"></MonacoEditor>
+        <b-row class="diff-view" no-gutters>
+          <b-col>
+            <MonacoEditor :theme="editorTheme" class="editor" language="javascript" value="value"></MonacoEditor>
           </b-col>
-          <b-col cols="4">
-            <MonacoEditor class="editor" language="javascript" theme="vs-light" value="gege"></MonacoEditor>
+          <b-col>
+            <MonacoEditor :theme="editorTheme" class="editor" language="javascript" value="gege"></MonacoEditor>
           </b-col>
-          <b-col cols="4">
-            <MonacoEditor class="editor" language="javascript" theme="vs-light" value="gege"></MonacoEditor>
+          <b-col>
+            <MonacoEditor :theme="editorTheme" class="editor" language="javascript" value="gege"></MonacoEditor>
           </b-col>
         </b-row>
         <!-- merged -->
-        <b-row class="merge-view">
-          <b-col>
-            <MonacoEditor class="merge-editor" language="javascript" theme="vs-light" value="gege"></MonacoEditor>
+        <b-row>
+          <b-col class="merge-view">
+            <MonacoEditor
+              :theme="editorTheme"
+              class="merge-editor"
+              language="javascript"
+              value="gege"
+            ></MonacoEditor>
           </b-col>
         </b-row>
       </b-col>
@@ -47,8 +57,6 @@
 </template>
 
 <script>
-// import MonacoEditor from 'monaco-editor-vue'
-// import MonacoEditor from 'vue-monaco-editor'
 import MonacoEditor from './vue-monaco'
 
 export default {
@@ -63,10 +71,70 @@ export default {
       index: 0,
       options: {
         //Monaco Editor Options
-      }
+      },
+      sidebarTheme: 'black-theme',
+      editorTheme: 'vs-dark',
+      collapsed: false,
+      menu: [
+        {
+          header: true,
+          title: 'Main Navigation'
+          // component: componentName
+          // visibleOnCollapse: true
+          // class:''
+          // attributes: {}
+        },
+        {
+          // item
+          href: '/',
+          title: 'Dashboard',
+          icon: 'fa fa-user'
+          /*
+                        // custom icon
+                        icon: {
+                            element: 'span',
+                            class: 'fa fa-user',
+                            attributes: {}
+                        }
+                        */
+          // disabled: true
+          // class: ''
+          // attributes: {}
+          // alias: '/path'
+          /*
+                        badge: {
+                            text: 'new',
+                            class: 'default-badge'
+                            // attributes: {}
+                            // element: 'span'
+                        }
+                        */
+        },
+        {
+          // item with child
+          href: '/charts',
+          title: 'Charts',
+          icon: 'fa fa-chart-area',
+          child: [
+            {
+              href: '/charts/sublink',
+              title: 'Sub Link'
+            }
+          ]
+        }
+      ]
     }
   },
-  methods: {}
+  methods: {
+    onCollapse(collapsed) {
+      this.collapsed = collapsed
+    },
+    onItemClick(event, item) {
+      console.log(item)
+      // console.log(event)
+      // console.log(item)
+    }
+  }
 }
 </script>
 
@@ -85,15 +153,24 @@ export default {
 
 .editor {
   height: 45vh;
-  width: 10/36vw;
+  /* width: 10/36vw; */
   margin: 0px;
   padding: 0px;
+  border: 1px solid grey;
 }
 
 .merge-editor {
   height: 50vh;
   width: 10/12vw;
-  margin: 0px;
+  /* margin: 0px; */
   padding: 0px;
+  border: 1px solid grey;
+}
+
+#demo {
+  padding-left: 350px;
+}
+#demo.collapsed {
+  padding-left: 50px;
 }
 </style>
