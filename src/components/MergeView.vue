@@ -20,7 +20,7 @@
               <b-button variant="success">
                 <v-icon name="arrow-up" />Previous
               </b-button>
-              <b-button variant="warning">Current index: {{index}}</b-button>
+              <b-button @click="refreshData" variant="warning">Current index: {{index}}</b-button>
               <b-button variant="info">
                 <v-icon name="arrow-down" />Next
               </b-button>
@@ -36,7 +36,7 @@
               <b-button pill size="sm" variant="primary">
                 <v-icon name="check" />Commit
               </b-button>&nbsp;
-              <b-button pill size="sm" variant="info">
+              <b-button @click="openSettings" pill size="sm" variant="info">
                 <v-icon name="cogs" />Settings
               </b-button>
             </b-button-group>
@@ -45,29 +45,29 @@
         <b-row class="diff-view" no-gutters>
           <b-col>
             <MonacoEditor
+              :language="language"
               :options="diffOptions"
               :theme="editorTheme"
               :value="left"
               class="editor"
-              language="javascript"
             ></MonacoEditor>
           </b-col>
           <b-col>
             <MonacoEditor
+              :language="language"
               :options="diffOptions"
               :theme="editorTheme"
               :value="base"
               class="editor"
-              language="javascript"
             ></MonacoEditor>
           </b-col>
           <b-col>
             <MonacoEditor
+              :language="language"
               :options="diffOptions"
               :theme="editorTheme"
               :value="right"
               class="editor"
-              language="javascript"
             ></MonacoEditor>
           </b-col>
         </b-row>
@@ -85,28 +85,37 @@
       </b-col>
     </b-row>
     <!-- </b-container> -->
+
+    <!-- Settings Modal -->
+    <sweet-modal ref="settingsModal" title="Settings">
+      <b-button @click="saveSettings()" class="right-button" variant="success">Save</b-button>
+      <b-button @click="cancelSettings()" class="right-button" variant="outline-primary">Cancel</b-button>
+    </sweet-modal>
   </div>
 </template>
 
 <script>
 import MonacoEditor from './vue-monaco'
+import { SweetModal } from 'sweet-modal-vue'
+import { readLocalFile } from './utils/helper'
 
 export default {
   name: 'Cards',
 
   components: {
-    MonacoEditor
+    MonacoEditor,
+    SweetModal
   },
 
   data() {
     return {
       // theme
       overallTheme: 'white',
-      sidebarTheme: 'white-theme',
-      editorTheme: 'vs-light',
+      sidebarTheme: 'white-theme', // black-theme
+      editorTheme: 'vs-light', // vs-dark
 
       // monaco options
-      language: 'javascript',
+      language: 'java',
       diffOptions: {
         //Monaco Editor Options
         readOnly: true
@@ -118,7 +127,7 @@ export default {
       base: '',
       right: '',
       merged: '',
-      dirty: false, // TODO if the merged is edited, show save button
+      dirty: true, // TODO if the merged is edited, show save button
 
       collapsed: false,
       menu: [
@@ -129,14 +138,38 @@ export default {
           // visibleOnCollapse: true
           // class:''
           // attributes: {}
+        },
+        {
+          title: 'src/github/SourceRoot.java',
+          badge: {
+            text: 'conflicting',
+            class: 'default-badge'
+          }
+        },
+        {
+          title: 'src/github/Utils.java',
+          badge: {
+            text: 'conflicting',
+            class: 'default-badge'
+          }
+        },
+        {
+          title: 'src/github/TreeConstructor.java',
+          badge: {
+            text: 'resolved',
+            class: 'default-badge'
+          }
         }
       ]
     }
   },
   methods: {
-    init() {
+    created() {
       // TODO get conflicting file relative paths, add item to the menu
+      console.log('created')
     },
+
+    // side bar methods
     onCollapse(collapsed) {
       this.collapsed = collapsed
     },
@@ -145,6 +178,49 @@ export default {
       console.log(item)
       // console.log(event)
       // console.log(item)
+    },
+    // button methods
+    // !! just for demo
+    refreshData() {
+      readLocalFile('src/components/data/base.java', 'utf-8')
+        .then(res => {
+          this.base = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      readLocalFile('src/components/data/left.java', 'utf-8')
+        .then(res => {
+          this.left = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      readLocalFile('src/components/data/right.java', 'utf-8')
+        .then(res => {
+          this.right = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      readLocalFile('src/components/data/merged.java', 'utf-8')
+        .then(res => {
+          this.merged = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+
+    // settings modal methods
+    openSettings() {
+      this.$refs.settingsModal.open()
+    },
+    saveSettings() {
+      this.$refs.settingsModal.close()
+    },
+    cancelSettings() {
+      this.$refs.settingsModal.close()
     }
   }
 }
@@ -185,5 +261,15 @@ export default {
 }
 #demo.collapsed {
   padding-left: 50px;
+}
+
+.sweet-modal .sweet-title h2 {
+  line-height: inherit;
+}
+
+.right-button {
+  float: right;
+  margin-top: 10px;
+  margin-right: 10px;
 }
 </style>
