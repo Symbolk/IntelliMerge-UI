@@ -29,15 +29,17 @@
           <b-col></b-col>
           <b-col cols="3"></b-col>
           <b-col style="text-align: right;margin-right:10px">
-            <b-button pill size="sm" v-if="dirty" variant="danger">
-              <v-icon name="save" />Save
-            </b-button>&nbsp;
-            <b-button pill size="sm" variant="primary">
-              <v-icon name="check" />Commit
-            </b-button>&nbsp;
-            <b-button pill size="sm" variant="info">
-              <v-icon name="cogs" />Settings
-            </b-button>
+            <b-button-group size="sm">
+              <b-button pill size="sm" v-if="dirty" variant="danger">
+                <v-icon name="save" />Save
+              </b-button>&nbsp;
+              <b-button pill size="sm" variant="primary">
+                <v-icon name="check" />Commit
+              </b-button>&nbsp;
+              <b-button pill size="sm" variant="info">
+                <v-icon name="cogs" />Settings
+              </b-button>
+            </b-button-group>
           </b-col>
         </b-row>
         <b-row class="diff-view" no-gutters>
@@ -99,8 +101,9 @@ export default {
   data() {
     return {
       // theme
-      sidebarTheme: 'black-theme',
-      editorTheme: 'vs-dark',
+      overallTheme: 'white',
+      sidebarTheme: 'white-theme',
+      editorTheme: 'vs-light',
 
       // monaco options
       language: 'javascript',
@@ -150,6 +153,7 @@ export default {
 <style scoped>
 .button-area {
   padding: 1px;
+  padding-top: 2px;
 }
 
 .diff-view {
@@ -181,8 +185,5 @@ export default {
 }
 #demo.collapsed {
   padding-left: 50px;
-}
-
-.v-sidebar-menu .collapse-btn {
 }
 </style>

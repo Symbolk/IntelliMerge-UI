@@ -27,4 +27,17 @@ export default {
   color: #2c3e50;
   /* margin-top: 20px; */
 }
+
+.v-sidebar-menu .collapse-btn {
+  order: -1;
+}
+
+/* disable scroll bar */
+/* body {
+  overflow-x: hidden;
+} */
+
+::-webkit-scrollbar {
+  display: none;
+}
 </style>
