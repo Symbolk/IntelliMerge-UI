@@ -7,12 +7,10 @@
 ### Screenshots
 
 #### Light theme:
-![light](https://github.com/Symbolk/IntelliMerge-UI/blob/master/screenshots/light.png)
-
+![light](/screenshots/light.png?raw=true "Light Theme")
 
 #### Dark theme:
-![dark](https://github.com/Symbolk/IntelliMerge-UI/blob/master/screenshots/dark.png)
-
+![dark](/screenshots/dark.png?raw=true "Dark Theme")
 
 ### Requirements
 
