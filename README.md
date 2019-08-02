@@ -14,7 +14,7 @@
 
 ### Requirements
 
-- Windows
+- Windows/Linux/macOS
 - Git ^2.18.0
 - Node.js ^v10.16.0
 - Yarn ~v1.16.0
