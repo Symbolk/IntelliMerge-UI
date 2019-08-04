@@ -20,7 +20,7 @@
               <b-button variant="success">
                 <v-icon name="arrow-up" />Previous
               </b-button>
-              <b-button @click="refreshData" variant="warning">Current index: {{index}}</b-button>
+              <b-button variant="warning">Current index: {{index}}</b-button>
               <b-button variant="info">
                 <v-icon name="arrow-down" />Next
               </b-button>
@@ -78,7 +78,10 @@
               :language="language"
               :theme="editorTheme"
               :value="merged"
+              @change="onCodeChange"
+              @editorDidMount="onEditorMount"
               class="merge-editor"
+              ref="mergedEditor"
             ></MonacoEditor>
           </b-col>
         </b-row>
@@ -127,7 +130,7 @@ export default {
       base: '',
       right: '',
       merged: '',
-      dirty: true, // TODO if the merged is edited, show save button
+      dirty: false, // if the merged is edited, show save button
 
       collapsed: false,
       menu: [
@@ -163,10 +166,45 @@ export default {
       ]
     }
   },
+  created() {
+    // !! just for demo
+    // TODO get conflicting file relative paths, add item to the menu
+    readLocalFile('src/components/data/base.java', 'utf-8')
+      .then(res => {
+        this.base = res
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    readLocalFile('src/components/data/left.java', 'utf-8')
+      .then(res => {
+        this.left = res
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    readLocalFile('src/components/data/right.java', 'utf-8')
+      .then(res => {
+        this.right = res
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    readLocalFile('src/components/data/merged.java', 'utf-8')
+      .then(res => {
+        this.merged = res
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  },
   methods: {
-    created() {
-      // TODO get conflicting file relative paths, add item to the menu
-      console.log('created')
+    onEditorMount(editor) {
+      // this.$refs.mergedEditor.getEditor()
+      console.log(editor)
+    },
+    onCodeChange(editor) {
+      this.dirty = true
     },
 
     // side bar methods
@@ -180,37 +218,6 @@ export default {
       // console.log(item)
     },
     // button methods
-    // !! just for demo
-    refreshData() {
-      readLocalFile('src/components/data/base.java', 'utf-8')
-        .then(res => {
-          this.base = res
-        })
-        .catch(err => {
-          console.log(err)
-        })
-      readLocalFile('src/components/data/left.java', 'utf-8')
-        .then(res => {
-          this.left = res
-        })
-        .catch(err => {
-          console.log(err)
-        })
-      readLocalFile('src/components/data/right.java', 'utf-8')
-        .then(res => {
-          this.right = res
-        })
-        .catch(err => {
-          console.log(err)
-        })
-      readLocalFile('src/components/data/merged.java', 'utf-8')
-        .then(res => {
-          this.merged = res
-        })
-        .catch(err => {
-          console.log(err)
-        })
-    },
 
     // settings modal methods
     openSettings() {
@@ -241,7 +248,7 @@ export default {
 }
 
 .editor {
-  height: 45vh;
+  height: 50vh;
   /* width: 10/36vw; */
   margin: 0px;
   padding: 0px;
