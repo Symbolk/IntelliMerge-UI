@@ -17,11 +17,11 @@
         <b-row class="button-area">
           <b-col cols="3">
             <b-button-group size="sm">
-              <b-button variant="success">
+              <b-button @click="previousConflict()" variant="success">
                 <v-icon name="arrow-up" />Previous
               </b-button>
-              <b-button variant="warning">Current index: {{index}}</b-button>
-              <b-button variant="info">
+              <b-button @click="highlight()" variant="warning">{{index}}/{{indexToLineMap.length}}</b-button>
+              <b-button @click="nextConflict()" variant="info">
                 <v-icon name="arrow-down" />Next
               </b-button>
             </b-button-group>
@@ -81,7 +81,7 @@
               @change="onCodeChange"
               @editorDidMount="onEditorMount"
               class="merge-editor"
-              ref="mergedEditor"
+              ref="mergeEditor"
             ></MonacoEditor>
           </b-col>
         </b-row>
@@ -101,6 +101,7 @@
 import MonacoEditor from './vue-monaco'
 import { SweetModal } from 'sweet-modal-vue'
 import { readLocalFile } from './utils/helper'
+const monaco = require('monaco-editor')
 
 export default {
   name: 'Cards',
@@ -124,8 +125,13 @@ export default {
         readOnly: true
       },
 
+      // monaco instance
+      mergeEditor: '',
+      decorations: '',
+
       // data
-      index: 0,
+      index: 0, // start from 1
+      indexToLineMap: [], // start from 0
       left: '',
       base: '',
       right: '',
@@ -167,6 +173,7 @@ export default {
     }
   },
   created() {
+    
     // !! just for demo
     // TODO get conflicting file relative paths, add item to the menu
     readLocalFile('src/components/data/base.java', 'utf-8')
@@ -193,15 +200,18 @@ export default {
     readLocalFile('src/components/data/merged.java', 'utf-8')
       .then(res => {
         this.merged = res
+        this.scanConflictBlocks()
       })
       .catch(err => {
         console.log(err)
       })
   },
+  mounted() {
+      this.mergeEditor = this.$refs.mergeEditor.getEditor()
+  },
   methods: {
     onEditorMount(editor) {
-      // this.$refs.mergedEditor.getEditor()
-      console.log(editor)
+      // console.log(editor)
     },
     onCodeChange(editor) {
       this.dirty = true
@@ -217,7 +227,52 @@ export default {
       // console.log(event)
       // console.log(item)
     },
+
+    // preparation
+    scanConflictBlocks() {
+      // scan the merged code to get the map between index and conflict blocks start line number
+      this.indexToLineMap = []
+      let lines = this.merged.split(/\r?\n/)
+      for (let i in lines) {
+        if (lines[i].startsWith('======')) {
+          this.indexToLineMap.push(parseInt(i) + 1)
+        }
+      }
+      this.index = 1
+    },
     // button methods
+    highlight(){
+            // highlight conflicting lines
+      console.log(this.mergeEditor.deltaDecorations(this.mergeEditor.getModel().getAllDecorations(), [
+        {
+          range: new monaco.Range(10, 1, 13, 1),
+          options: {
+            isWholeLine: true,
+            linesDecorationsClassName: 'lineNumberDecoration'
+          }
+        },
+        {
+          range: new monaco.Range(15, 1, 20, 24),
+          options: { inlineClassName: 'leftLineDecoration' }
+        }
+      ]))
+    },
+    previousConflict() {
+      if (this.index - 1 >= 1) {
+        this.index -= 1
+      } else {
+        this.index = this.indexToLineMap.length
+      }
+      this.mergeEditor.revealLineInCenter(this.indexToLineMap[this.index - 1])
+    },
+    nextConflict() {
+      if (this.index + 1 <= this.indexToLineMap.length) {
+        this.index += 1
+      } else {
+        this.index = 1
+      }
+      this.mergeEditor.revealLineInCenter(this.indexToLineMap[this.index - 1])
+    },
 
     // settings modal methods
     openSettings() {
@@ -278,5 +333,23 @@ export default {
   float: right;
   margin-top: 10px;
   margin-right: 10px;
+}
+
+.lineNumberDecoration {
+  background: orange;
+  width: 5px !important;
+  margin-left: 3px;
+}
+
+.leftLineDecoration {
+  background: lightblue;
+}
+
+.baseLineDecoration {
+  background: grey;
+}
+
+.rightLineDecoration {
+  background: pink;
 }
 </style>
