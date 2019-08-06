@@ -36,7 +36,13 @@ import static com.github.javaparser.utils.SourceRoot.Callback.Result.SAVE;
  * Files can be parsed and written back one by one or all together.
  */
 public class SourceRoot {
+<<<<<<< ours
+    private final Path rootPath;
+||||||| F:\workspace\dev\IntelliMerge\src\test\resources\Rename\RenameField\base\SourceRoot.java
+    private final Path pathRoot;
+=======
     private final Path root;
+>>>>>>> theirs
     private final Map<Path, ParseResult<CompilationUnit>> content = new HashMap<>();
 <<<<<<< ours
     public interface Callback {

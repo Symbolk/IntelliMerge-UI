@@ -102,7 +102,6 @@ import MonacoEditor from './vue-monaco'
 import { SweetModal } from 'sweet-modal-vue'
 import { readLocalFile } from './utils/helper'
 const monaco = require('monaco-editor')
-
 export default {
   name: 'Cards',
 
@@ -173,7 +172,6 @@ export default {
     }
   },
   created() {
-    
     // !! just for demo
     // TODO get conflicting file relative paths, add item to the menu
     readLocalFile('src/components/data/base.java', 'utf-8')
@@ -207,7 +205,7 @@ export default {
       })
   },
   mounted() {
-      this.mergeEditor = this.$refs.mergeEditor.getEditor()
+    this.mergeEditor = this.$refs.mergeEditor.getEditor()
   },
   methods: {
     onEditorMount(editor) {
@@ -233,29 +231,127 @@ export default {
       // scan the merged code to get the map between index and conflict blocks start line number
       this.indexToLineMap = []
       let lines = this.merged.split(/\r?\n/)
+      // get three way start line
+      let block = {}
+      let insideBlock = false
       for (let i in lines) {
-        if (lines[i].startsWith('======')) {
-          this.indexToLineMap.push(parseInt(i) + 1)
+        if (!insideBlock && lines[i].startsWith('<<<<<<')) {
+          block = {}
+          block['left_start'] = parseInt(i) + 1
+          insideBlock = true
+          continue
+        }
+        // undefined if in diff2 style
+        if (insideBlock && lines[i].startsWith('|||||||')) {
+          block['base_start'] = parseInt(i) + 1
+          continue
+        }
+        if (insideBlock && lines[i].startsWith('======')) {
+          block['right_start'] = parseInt(i) + 1
+          continue
+        }
+        if (insideBlock && lines[i].startsWith('>>>>>>>')) {
+          block['right_end'] = parseInt(i) + 1
+          this.indexToLineMap.push(block)
+          block = {}
+          insideBlock = false
+          continue
         }
       }
-      this.index = 1
     },
     // button methods
-    highlight(){
-            // highlight conflicting lines
-      console.log(this.mergeEditor.deltaDecorations(this.mergeEditor.getModel().getAllDecorations(), [
-        {
-          range: new monaco.Range(10, 1, 13, 1),
-          options: {
-            isWholeLine: true,
-            linesDecorationsClassName: 'lineNumberDecoration'
-          }
-        },
-        {
-          range: new monaco.Range(15, 1, 20, 24),
-          options: { inlineClassName: 'leftLineDecoration' }
+    highlight() {
+      // show the first by default
+      if (this.indexToLineMap.length > 0) {
+        console.log(this.indexToLineMap[0])
+        this.index = 1
+        this.mergeEditor.revealLineInCenter(this.indexToLineMap[0].right_start)
+      }
+      // highlight conflicting lines
+      let decorations = []
+      this.indexToLineMap.forEach(conflictBlock => {
+        if (conflictBlock.base_start) {
+          decorations.push({
+            range: new monaco.Range(
+              conflictBlock.left_start,
+              0,
+              conflictBlock.base_start - 1,
+              0
+            ),
+            options: {
+              isWholeLine: true,
+              className: 'leftLineDecoration',
+              marginClassName: 'leftLineDecoration'
+            }
+          })
+          decorations.push({
+            range: new monaco.Range(
+              conflictBlock.base_start,
+              0,
+              conflictBlock.right_start - 1,
+              0
+            ),
+            options: {
+              isWholeLine: true,
+              className: 'baseLineDecoration',
+              marginClassName: 'baseLineDecoration'
+            }
+          })
+          decorations.push({
+            range: new monaco.Range(
+              conflictBlock.right_start,
+              0,
+              conflictBlock.right_end,
+              0
+            ),
+            options: {
+              isWholeLine: true,
+              className: 'rightLineDecoration',
+              marginClassName: 'rightLineDecoration'
+            }
+          })
+        } else {
+          decorations.push({
+            range: new monaco.Range(
+              conflictBlock.left_start,
+              0,
+              conflictBlock.right_start - 1,
+              0
+            ),
+            options: {
+              isWholeLine: true,
+              className: 'leftLineDecoration',
+              marginClassName: 'leftLineDecoration'
+            }
+          })
+          decorations.push({
+            range: new monaco.Range(
+              conflictBlock.right_start,
+              0,
+              conflictBlock.right_end,
+              0
+            ),
+            options: {
+              isWholeLine: true,
+              className: 'rightLineDecoration',
+              marginClassName: 'rightLineDecoration'
+            }
+          })
         }
-      ]))
+      })
+      // need to review
+      // {
+      //   range: new monaco.Range(14, 1, 17, 1),
+      //   options: {
+      //     isWholeLine: true,
+      //     linesDecorationsClassName: 'lineNumberDecoration'
+      //     // marginClassName: 'leftLineDecoration'
+      //   }
+      // },
+      this.mergeEditor.deltaDecorations(
+        this.mergeEditor.getModel().getAllDecorations(),
+        decorations
+      )
     },
     previousConflict() {
       if (this.index - 1 >= 1) {
@@ -263,7 +359,9 @@ export default {
       } else {
         this.index = this.indexToLineMap.length
       }
-      this.mergeEditor.revealLineInCenter(this.indexToLineMap[this.index - 1])
+      this.mergeEditor.revealLineInCenter(
+        this.indexToLineMap[this.index - 1].right_start
+      )
     },
     nextConflict() {
       if (this.index + 1 <= this.indexToLineMap.length) {
@@ -271,7 +369,9 @@ export default {
       } else {
         this.index = 1
       }
-      this.mergeEditor.revealLineInCenter(this.indexToLineMap[this.index - 1])
+      this.mergeEditor.revealLineInCenter(
+        this.indexToLineMap[this.index - 1].right_start
+      )
     },
 
     // settings modal methods
@@ -288,7 +388,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .button-area {
   padding: 1px;
   padding-top: 2px;
@@ -346,7 +446,7 @@ export default {
 }
 
 .baseLineDecoration {
-  background: grey;
+  background: lightgrey;
 }
 
 .rightLineDecoration {
