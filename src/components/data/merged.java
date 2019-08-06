@@ -130,17 +130,21 @@ public class SourceRoot {
         Log.info("Saving all files (%s) to %s", content.size(), root);
         for (Map.Entry<Path, ParseResult<CompilationUnit>> cu : content.entrySet()) {
             final Path path = root.resolve(cu.getKey());
-<<<<<<< ours
+<<<<<<< left
             if (cu.getValue().getResult().isPresent()) {
                 Log.trace("Saving %s", path);
                 save(cu.getValue().getResult().get(), path);
+||||||| base              
+            Log.trace("Saving %s", path);
+            path.getParent().toFile().mkdirs();
+            final String code = new PrettyPrinter().print(cu.getValue().getResult().get());
 =======
             Log.trace("Saving %s", path);
             path.getParent().toFile().mkdirs();
-
+            final String code = new PrettyPrinter().print(cu.getValue().getResult().get());
             try (PrintWriter out = new PrintWriter(path.toFile(), StandardCharsets.UTF_8.displayName())) {
                 out.println(new PrettyPrinter().print(cu.getValue().getResult().get()));
->>>>>>> theirs
+>>>>>>> right
             }
         }
     }

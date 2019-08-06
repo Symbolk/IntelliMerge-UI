@@ -50,6 +50,7 @@
               :theme="editorTheme"
               :value="left"
               class="editor"
+              ref="leftEditor"
             ></MonacoEditor>
           </b-col>
           <b-col>
@@ -59,6 +60,7 @@
               :theme="editorTheme"
               :value="base"
               class="editor"
+              ref="baseEditor"
             ></MonacoEditor>
           </b-col>
           <b-col>
@@ -68,6 +70,7 @@
               :theme="editorTheme"
               :value="right"
               class="editor"
+              ref="rightEditor"
             ></MonacoEditor>
           </b-col>
         </b-row>
@@ -206,10 +209,14 @@ export default {
   },
   mounted() {
     this.mergeEditor = this.$refs.mergeEditor.getEditor()
+    this.leftEditor = this.$refs.leftEditor.getEditor()
+    this.baseEditor = this.$refs.baseEditor.getEditor()
+    this.rightEditor = this.$refs.rightEditor.getEditor()
   },
   methods: {
     onEditorMount(editor) {
-      // console.log(editor)
+      // this.mergeEditor = this.$refs.mergeEditor.getEditor()
+      // this.highlight()
     },
     onCodeChange(editor) {
       this.dirty = true
@@ -339,18 +346,45 @@ export default {
           })
         }
       })
-      // need to review
-      // {
-      //   range: new monaco.Range(14, 1, 17, 1),
-      //   options: {
-      //     isWholeLine: true,
-      //     linesDecorationsClassName: 'lineNumberDecoration'
-      //     // marginClassName: 'leftLineDecoration'
-      //   }
-      // },
+
       this.mergeEditor.deltaDecorations(
         this.mergeEditor.getModel().getAllDecorations(),
         decorations
+      )
+      // three way diff
+      this.leftEditor.deltaDecorations(
+        [],
+        [
+          {
+            range: new monaco.Range(84, 1, 90, 1),
+            options: {
+              marginClassName: 'leftLineDecoration'
+            }
+          }
+        ]
+      )
+      this.baseEditor.deltaDecorations(
+        [],
+        [
+          {
+            range: new monaco.Range(79, 1, 85, 1),
+            options: {
+              marginClassName: 'baseLineDecoration'
+            }
+          }
+        ]
+      )
+
+      this.rightEditor.deltaDecorations(
+        [],
+        [
+          {
+            range: new monaco.Range(119, 1, 122, 1),
+            options: {
+              marginClassName: 'rightLineDecoration'
+            }
+          }
+        ]
       )
     },
     previousConflict() {
@@ -436,9 +470,9 @@ export default {
 }
 
 .lineNumberDecoration {
-  background: orange;
-  width: 5px !important;
-  margin-left: 3px;
+  background: rgb(241, 238, 6);
+  /* width: 5px !important;
+  margin-left: 3px; */
 }
 
 .leftLineDecoration {
