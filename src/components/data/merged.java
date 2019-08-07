@@ -137,7 +137,11 @@ public class SourceRoot {
 ||||||| base              
             Log.trace("Saving %s", path);
             path.getParent().toFile().mkdirs();
+            
             final String code = new PrettyPrinter().print(cu.getValue().getResult().get());
+            try (PrintWriter out = new PrintWriter(path.toFile(), UTF8.toString())) {
+                out.println(code);
+            }
 =======
             Log.trace("Saving %s", path);
             path.getParent().toFile().mkdirs();

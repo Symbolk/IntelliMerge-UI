@@ -356,7 +356,7 @@ export default {
         [],
         [
           {
-            range: new monaco.Range(84, 1, 90, 1),
+            range: new monaco.Range(119, 1, 121, 1),
             options: {
               marginClassName: 'leftLineDecoration'
             }
@@ -379,7 +379,7 @@ export default {
         [],
         [
           {
-            range: new monaco.Range(119, 1, 122, 1),
+            range: new monaco.Range(84, 1, 90, 1),
             options: {
               marginClassName: 'rightLineDecoration'
             }
