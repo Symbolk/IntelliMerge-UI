@@ -360,6 +360,15 @@ export default {
             options: {
               marginClassName: 'leftLineDecoration'
             }
+          },
+          {
+            range: new monaco.Range(126, 1, 135, 1),
+            options: {
+              marginClassName: 'leftLineDecoration',
+              hoverMessage: {
+                value: 'Extracted from [saveAll()]'
+              }
+            }
           }
         ]
       )
