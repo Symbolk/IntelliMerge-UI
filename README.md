@@ -2,7 +2,7 @@
 
 #### The GUI client for developers to inspect resolved conflicts and manually resolve remained conflicts, after merging branches with IntelliMerge.
 
-> Notice: Currently only for demo. Under building🏗. 
+> Notice: Under building🏗. 
 
 ### Screenshots
 
