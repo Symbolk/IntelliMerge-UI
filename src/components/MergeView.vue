@@ -20,7 +20,7 @@
               <b-button @click="previousConflict()" variant="success">
                 <v-icon name="arrow-up" />Previous
               </b-button>
-              <b-button @click="highlight()" variant="warning">{{index}}/{{indexToLineMap.length}}</b-button>
+              <b-button @click="highlight()" variant="warning">{{index}}/{{conflictBlocks.length}}</b-button>
               <b-button @click="nextConflict()" variant="info">
                 <v-icon name="arrow-down" />Next
               </b-button>
@@ -133,14 +133,15 @@ export default {
 
       // data
       index: 0, // start from 1
-      indexToLineMap: [], // start from 0
+      conflictBlocks: [], // start from 0
+      filePaths: [],
       left: '',
       base: '',
       right: '',
       merged: '',
       dirty: false, // if the merged is edited, show save button
 
-      collapsed: false,
+      collapsed: true,
       menu: [
         {
           header: true,
@@ -175,30 +176,32 @@ export default {
     }
   },
   created() {
-    // !! just for demo
-    // TODO get conflicting file relative paths, add item to the menu
-    readLocalFile('src/components/data/base.java', 'utf-8')
-      .then(res => {
-        this.base = res
-      })
-      .catch(err => {
-        console.log(err)
-      })
-    readLocalFile('src/components/data/left.java', 'utf-8')
-      .then(res => {
-        this.left = res
-      })
-      .catch(err => {
-        console.log(err)
-      })
-    readLocalFile('src/components/data/right.java', 'utf-8')
-      .then(res => {
-        this.right = res
-      })
-      .catch(err => {
-        console.log(err)
-      })
-    readLocalFile('src/components/data/merged.java', 'utf-8')
+    for (let path of window.process.argv.slice(-4)) {
+      this.filePaths.push(String(path))
+    }
+
+      readLocalFile(this.filePaths[1], 'utf-8')
+        .then(res => {
+          this.base = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      readLocalFile(this.filePaths[0], 'utf-8')
+        .then(res => {
+          this.left = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      readLocalFile(this.filePaths[2], 'utf-8')
+        .then(res => {
+          this.right = res
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      readLocalFile(this.filePaths[3], 'utf-8')
       .then(res => {
         this.merged = res
         this.scanConflictBlocks()
@@ -236,48 +239,88 @@ export default {
     // preparation
     scanConflictBlocks() {
       // scan the merged code to get the map between index and conflict blocks start line number
-      this.indexToLineMap = []
+      this.conflictBlocks = []
       let lines = this.merged.split(/\r?\n/)
       // get three way start line
-      let block = {}
-      let insideBlock = false
+      let block = {
+        left_start: -1,
+        base_start: -1,
+        right_start: -1,
+        right_end: -1,
+        left_code: [],
+        base_code: [],
+        right_code: []
+      }
+      let insideBlock = -1 // 1=left 0=base 2=right
       for (let i in lines) {
-        if (!insideBlock && lines[i].startsWith('<<<<<<')) {
-          block = {}
-          block['left_start'] = parseInt(i) + 1
-          insideBlock = true
-          continue
-        }
-        // undefined if in diff2 style
-        if (insideBlock && lines[i].startsWith('|||||||')) {
-          block['base_start'] = parseInt(i) + 1
-          continue
-        }
-        if (insideBlock && lines[i].startsWith('======')) {
-          block['right_start'] = parseInt(i) + 1
-          continue
-        }
-        if (insideBlock && lines[i].startsWith('>>>>>>>')) {
-          block['right_end'] = parseInt(i) + 1
-          this.indexToLineMap.push(block)
-          block = {}
-          insideBlock = false
-          continue
+        let line = lines[i]
+        if (insideBlock < 0) {
+          if (line.startsWith('<<<<<<')) {
+            block = {
+              left_start: -1,
+              base_start: -1,
+              right_start: -1,
+              right_end: -1,
+              left_code: [],
+              base_code: [],
+              right_code: []
+            }
+            block.left_start = parseInt(i) + 1
+            insideBlock = 1
+            continue
+          }
+        } else {
+          if (line.startsWith('|||||||')) {
+            block.base_start = parseInt(i) + 1
+            insideBlock = 0
+            continue
+          }
+          if (line.startsWith('======')) {
+            block.right_start = parseInt(i) + 1
+            insideBlock = 2
+            continue
+          }
+          if (line.startsWith('>>>>>>>')) {
+            block.right_end = parseInt(i) + 1
+            this.conflictBlocks.push(block)
+            block = {
+              left_start: -1,
+              base_start: -1,
+              right_start: -1,
+              right_end: -1,
+              left_code: [],
+              base_code: [],
+              right_code: []
+            }
+            insideBlock = -1
+            continue
+          }
+          switch (insideBlock) {
+            case 1:
+              block.left_code.push(line)
+              break
+            case 0:
+              block.base_code.push(line)
+              break
+            case 2:
+              block.right_code.push(line)
+              break
+          }
         }
       }
     },
     // button methods
     highlight() {
       // show the first by default
-      if (this.indexToLineMap.length > 0) {
-        console.log(this.indexToLineMap[0])
+      if (this.conflictBlocks.length > 0) {
         this.index = 1
-        this.mergeEditor.revealLineInCenter(this.indexToLineMap[0].right_start)
+        this.mergeEditor.revealLineInCenter(this.conflictBlocks[0].right_start)
       }
       // highlight conflicting lines
       let decorations = []
-      this.indexToLineMap.forEach(conflictBlock => {
-        if (conflictBlock.base_start) {
+      this.conflictBlocks.forEach(conflictBlock => {
+        if (conflictBlock.base_start > 0) {
+          // diff3
           decorations.push({
             range: new monaco.Range(
               conflictBlock.left_start,
@@ -318,6 +361,7 @@ export default {
             }
           })
         } else {
+          // diff2
           decorations.push({
             range: new monaco.Range(
               conflictBlock.left_start,
@@ -400,20 +444,20 @@ export default {
       if (this.index - 1 >= 1) {
         this.index -= 1
       } else {
-        this.index = this.indexToLineMap.length
+        this.index = this.conflictBlocks.length
       }
       this.mergeEditor.revealLineInCenter(
-        this.indexToLineMap[this.index - 1].right_start
+        this.conflictBlocks[this.index - 1].right_start
       )
     },
     nextConflict() {
-      if (this.index + 1 <= this.indexToLineMap.length) {
+      if (this.index + 1 <= this.conflictBlocks.length) {
         this.index += 1
       } else {
         this.index = 1
       }
       this.mergeEditor.revealLineInCenter(
-        this.indexToLineMap[this.index - 1].right_start
+        this.conflictBlocks[this.index - 1].right_start
       )
     },
 
