@@ -16,7 +16,7 @@
     "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.0-rc.27",
     "core-js": "^2.6.5",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "monaco-editor": "^0.17.1",
     "monaco-editor-webpack-plugin": "^1.7.0",
     "nano-assign": "^1.0.1",
